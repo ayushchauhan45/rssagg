@@ -29,9 +29,9 @@ func (apiCfg *apiconfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 		Name: params.Name,
 	})
 	if  er != nil{
-		respondWithError(w, 500, fmt.Sprintf("Error creating user: %v", er))
+		respondWithError(w, 400, fmt.Sprintf("Error creating user: %v", er))
 		return
 	}
 
-	respondWithJson(w, 200, users)
+	respondWithJson(w, 200, databaseUserToUser(users))
 }
