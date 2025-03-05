@@ -14,16 +14,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
-
-type apiconfig struct{
+type apiconfig struct {
 	DB *database.Queries
 }
 
 func main() {
-	
 
 	godotenv.Load(".env")
-
 
 	portString := os.Getenv("PORT")
 	if portString == "" {
@@ -31,16 +28,15 @@ func main() {
 	}
 
 	dbURL := os.Getenv("DB_URL")
-	if dbURL == ""{
+	if dbURL == "" {
 		log.Fatal("DB_URL is  not found in the environment")
 	}
 
 	conn, err := sql.Open("postgres", dbURL)
-	if err != nil{
+	if err != nil {
 		log.Fatal("Can't connect to database:", err)
 	}
 
-	
 	apiCfg := apiconfig{
 		DB: database.New(conn),
 	}
@@ -60,19 +56,16 @@ func main() {
 		MaxAge:           300,
 	}))
 
-
 	v1Router := chi.NewRouter()
 	v1Router.Get("/healthz", readinessHandler)
-	v1Router.Get("/err", handlerErr )
+	v1Router.Get("/err", handlerErr)
 	v1Router.Post("/users", apiCfg.handlerCreateUser)
 	v1Router.Get("/users", apiCfg.middlewareAuth(apiCfg.handlerGetUser))
 	v1Router.Post("/feeds", apiCfg.middlewareAuth(apiCfg.handlerCreateFeed))
-    v1Router.Get("/feeds", apiCfg.handlerGetFeed)
+	v1Router.Get("/feeds", apiCfg.handlerGetFeed)
+	v1Router.Post("/feed_follows", apiCfg.middlewareAuth(apiCfg.handlerCreateFeedFollow))
 
 	router.Mount("/v1", v1Router)
-
- 
-
 
 	log.Printf("Server is running on port %v", portString)
 	err = srv.ListenAndServe()
