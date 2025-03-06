@@ -20,6 +20,7 @@ type apiconfig struct {
 
 func main() {
 
+
 	godotenv.Load(".env")
 
 	portString := os.Getenv("PORT")
