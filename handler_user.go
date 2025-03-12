@@ -22,13 +22,13 @@ func (apiCfg *apiconfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 		respondWithError(w, 400, fmt.Sprintf("Error parsing JSON: %v", err))
 	}
 
-	users, er:= apiCfg.DB.CreateUser(r.Context(), database.CreateUserParams{
-		ID: uuid.New(),
+	users, er := apiCfg.DB.CreateUser(r.Context(), database.CreateUserParams{
+		ID:        uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
-		Name: params.Name,
+		Name:      params.Name,
 	})
-	if  er != nil{
+	if er != nil {
 		respondWithError(w, 400, fmt.Sprintf("Error creating user: %v", er))
 		return
 	}
@@ -37,7 +37,18 @@ func (apiCfg *apiconfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 }
 
 func (apiCfg *apiconfig) handlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
-    
 
-	respondWithJson(w,200,databaseUserToUser(user))
+	respondWithJson(w, 200, databaseUserToUser(user))
+}
+
+func (apiCfg *apiconfig) handlerGetPostsForUser(w http.ResponseWriter, r *http.Request, user database.User) {
+	posts, err := apiCfg.DB.GetPostForUser(r.Context(), database.GetPostForUserParams{
+		UserID: user.ID,
+		Limit:  10,
+	})
+	if err != nil {
+		respondWithError(w, 400, fmt.Sprintf("Error creating post: %v", err))
+		return
+	}
+	respondWithJson(w, 200, databasePoststoPosts(posts))
 }
